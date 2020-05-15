@@ -7,3 +7,25 @@ categories: []
 tags: []
 description: ''
 ---
+
+```{python}
+#Python code chunk
+#Popular starches and their calories per cup 
+starch_calories ={
+'brown rice':216,
+'white rice':206,
+'potato':163,
+'corn':177,
+'oatmeal':158
+'white bread':109
+}
+
+starch_calories
+```
+
+```{r}
+#R code chunk
+library(reticulate)
+py$starch_calories['white rice']
+```
+

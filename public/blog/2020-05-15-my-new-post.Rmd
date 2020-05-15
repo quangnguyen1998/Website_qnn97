@@ -7,3 +7,15 @@ categories: []
 tags: []
 description: ''
 ---
+
+```{python}
+#Python code chunk
+animal = "dog", "cat", "turtle"
+print(animal)
+```
+
+```{r}
+library(reticulate)
+
+```
+

@@ -17,7 +17,7 @@
       <pubDate>Fri, 15 May 2020 00:00:00 +0000</pubDate>
       
       <guid>/blog/my-new-post/</guid>
-      <description></description>
+      <description> #Python code chunk animal = &amp;quot;dog&amp;quot;, &amp;quot;cat&amp;quot;, &amp;quot;turtle&amp;quot; print(animal) ## (&amp;#39;dog&amp;#39;, &amp;#39;cat&amp;#39;, &amp;#39;turtle&amp;#39;) library(reticulate) </description>
     </item>
     
   </channel>
