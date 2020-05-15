@@ -72,11 +72,27 @@
               
 
 
+<pre class="r"><code>#R code chunk
+library(reticulate)</code></pre>
 <pre class="python"><code>#Python code chunk
-animal = &quot;dog&quot;, &quot;cat&quot;, &quot;turtle&quot;
-print(animal)</code></pre>
-<pre><code>## (&#39;dog&#39;, &#39;cat&#39;, &#39;turtle&#39;)</code></pre>
-<pre class="r"><code>library(reticulate)</code></pre>
+#Popular starches and their calories per cup 
+import re
+starch_calories={&#39;brownrice&#39;:216, &#39;whiterice&#39;:206, &#39;potato&#39;:163, &#39;corn&#39;:177, &#39;oatmeal&#39;:158, &#39;whitebread&#39;:109
+}
+starch_calories</code></pre>
+<pre><code>## {&#39;whiterice&#39;: 206, &#39;brownrice&#39;: 216, &#39;whitebread&#39;: 109, &#39;potato&#39;: 163, &#39;corn&#39;: 177, &#39;oatmeal&#39;: 158}</code></pre>
+<pre class="python"><code>x=2</code></pre>
+<pre class="r"><code>#R code chunk
+library(reticulate)
+py$starch_calories[&#39;brownrice&#39;]</code></pre>
+<pre><code>## $brownrice
+## [1] 216</code></pre>
+<pre class="r"><code>calo&lt;-py$starch_calories
+total&lt;-calo$brownrice + calo$whiterice + calo$potato + calo$corn + calo$oatmeal + calo$whitebread
+total</code></pre>
+<pre><code>## [1] 1029</code></pre>
+<pre class="r"><code>py$x</code></pre>
+<pre><code>## [1] 2</code></pre>
 
               <hr>
               <div class="related-posts">

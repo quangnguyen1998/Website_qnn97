@@ -8,14 +8,31 @@ tags: []
 description: ''
 ---
 
+```{r}
+#R code chunk
+library(reticulate)
+```
+
 ```{python}
 #Python code chunk
-animal = "dog", "cat", "turtle"
-print(animal)
+#Popular starches and their calories per cup 
+import re
+starch_calories={'brownrice':216, 'whiterice':206, 'potato':163, 'corn':177, 'oatmeal':158, 'whitebread':109
+}
+starch_calories
+
+x=2
 ```
 
 ```{r}
+#R code chunk
 library(reticulate)
+py$starch_calories['brownrice']
 
+calo<-py$starch_calories
+total<-calo$brownrice + calo$whiterice + calo$potato + calo$corn + calo$oatmeal + calo$whitebread
+total
+
+py$x
 ```
 
