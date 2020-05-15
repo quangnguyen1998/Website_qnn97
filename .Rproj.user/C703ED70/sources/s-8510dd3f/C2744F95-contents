@@ -1,3 +1,2 @@
 getwd()
 blogdown::serve_site()
-ls
