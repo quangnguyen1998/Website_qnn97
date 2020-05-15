@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Projects
-The projects were focused on analyze the relationships of the variebles within the dataset about melanoma using different methods.
+The projects were focused on analyze the relationships of the variebles within melanoma dataset using different methods.
 
 - [Exploratory Data Analysis with Tidyverse Tools](/project1/)
 
