@@ -1,0 +1,17 @@
+]0;/stor/home/qnn97/Project3/Website_qnn97]0;qnn97@educcomp01: ~/Project3/Website_qnn97[01;32mqnn97@educcomp01[00m:[01;34m~/Project3/Website_qnn97[00m$ [K]0;qnn97@educcomp01: ~/Project3/Website_qnn97[01;32mqnn97@educcomp01[00m:[01;34m~/Project3/Website_qnn97[00m$ git --version
+git version 2.17.1
+]0;/stor/home/qnn97/Project3/Website_qnn97]0;qnn97@educcomp01: ~/Project3/Website_qnn97[01;32mqnn97@educcomp01[00m:[01;34m~/Project3/Website_qnn97[00m$ cd ~/Desktop/PROJECT_DIRECTORY_NAME[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[KWev[Kbsite_qnn97
+bash: cd: /stor/home/qnn97/Desktop/Website_qnn97: No such file or directory
+]0;/stor/home/qnn97/Project3/Website_qnn97]0;qnn97@educcomp01: ~/Project3/Website_qnn97[01;32mqnn97@educcomp01[00m:[01;34m~/Project3/Website_qnn97[00m$ ls
+config.toml  [0m[01;34mcontent[0m  index.Rmd  [01;34mpublic[0m  [01;34mstatic[0m  [01;34mthemes[0m  Untitled.R  Website_qnn97.Rproj
+]0;/stor/home/qnn97/Project3/Website_qnn97]0;qnn97@educcomp01: ~/Project3/Website_qnn97[01;32mqnn97@educcomp01[00m:[01;34m~/Project3/Website_qnn97[00m$ git init
+Initialized empty Git repository in /stor/home/qnn97/Project3/Website_qnn97/.git/
+]0;/stor/home/qnn97/Project3/Website_qnn97]0;qnn97@educcomp01: ~/Project3/Website_qnn97[01;32mqnn97@educcomp01[00m:[01;34m~/Project3/Website_qnn97[00m$ git init -a[K[K[K[K[K[K[K[K[K[K[Kls -a
+[0m[01;34m.[0m   config.toml  .DS_Store  index.Rmd  [01;34m.Rproj.user[0m  [01;34mthemes[0m      Website_qnn97.Rproj
+[01;34m..[0m  [01;34mcontent[0m      [01;34m.git[0m       [01;34mpublic[0m     [01;34mstatic[0m       Untitled.R
+]0;/stor/home/qnn97/Project3/Website_qnn97]0;qnn97@educcomp01: ~/Project3/Website_qnn97[01;32mqnn97@educcomp01[00m:[01;34m~/Project3/Website_qnn97[00m$ git add-[K.
+git: 'add.' is not a git command. See 'git --help'.
+
+The most similar command is
+	add
+]0;/stor/home/qnn97/Project3/Website_qnn97]0;qnn97@educcomp01: ~/Project3/Website_qnn97[01;32mqnn97@educcomp01[00m:[01;34m~/Project3/Website_qnn97[00m$ git add .

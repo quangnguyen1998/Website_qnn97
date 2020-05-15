@@ -1,0 +1,273 @@
+---
+title: "Project 2"
+author: "Quang Nguyen"
+date: "2020-05-02"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r global_options, include=FALSE}
+library(knitr)
+opts_chunk$set(fig.align="center", fig.height=5, message=FALSE, warning=FALSE, fig.width=8, tidy.opts=list(width.cutoff=60),tidy=TRUE)
+```
+
+## Quang Nguyen UTEID: qnn97
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+#Introduction:
+#The dataset consist of the measurements on the patients with malignant melanoma. The data was collected in the patients who had their tumour removed surgically at the Department of Plastic Surgery, University Hospital of Odense, Denmark from 1962 to 1977. The data included 205 observations and 7 variebles in which 4 of them (age, time, thickness and year) are numeric varieble and 3 of them (sex, status, ulcer) are categorical varieble. 
+#In this project, the relationship between time, ulcer, thickness, sex will be discovered following the result of the Project 1. According to that, ulceration of tumor, thickness of tumor are expected to be a good prediction for the time that patient can live after the operation. Formal statistical test in this project would provide the inside to the relationship between these variebles. 
+#These dataset was taken because I am interested in medicine and cancer in particular. Melanoma is popular known as skin cancer. Even though it is not a popular cancer type, it can be very deadly because it can spread to other organs rapidly if it is not discovered and treated properly. 
+
+
+```{r}
+#Prepare dataset:
+library(boot)
+project2<-melanoma
+
+library(dplyr) 
+library(tidyr)
+library(tidyverse)
+
+#Made two dataset and then join
+project2_1<-project2%>%dplyr::select(age,time, thickness,year)%>%group_by(age)
+
+project2_2<-project2%>%dplyr::select(age,sex,ulcer,status)%>%group_by(age)
+project2_2$sex<-recode(project2_2$sex,"0"= "female", "1"="male" )
+
+#Change 1,2,3 to the status of patient after operation.
+project2_2$status[project2_2$status==1] <- "died from melanoma"
+project2_2$status[project2_2$status==2] <- "alive"
+project2_2$status[project2_2$status==3] <- "died from other causes"
+
+#join
+project2_join<-project2_2%>%full_join(project2_1)
+head(project2_join)
+```
+#Talk a a bit about data preparation. how does it matter in the following tests. 
+
+```{r}
+#MANOVA
+man1<-manova(cbind(time,thickness,age)~status, data=project2_join)
+summary(man1)
+#Get univariate ANOVAs from MANOVA object
+summary.aov(man1)
+#Mean in time and age across three status of patients
+project2_join%>%group_by(status)%>%summarize(mean(time),mean(age))
+#Post-hoc test to find which group differs:
+ pairwise.t.test(project2_join$time, project2_join$status, p.adj = "none")
+pairwise.t.test(project2_join$age, project2_join$status, p.adj = "none")
+
+```
+#In total, 1 MANOVA, 3 ANOVA and 6 t-tests were performed (each of two DVs for each of three status group). 
+#Because the p-value for MANOVA is much less than 0.05 the overall MANOVA is significant so, for at least one testing DVs (time,thickness,age), there is at least one "status" mean is different. Therefore,  follow-up univariate ANOVAs was done on each variable. 
+#According to the ANOVA test on each individual DVs, there are only age and time shows mean different across "status" group significantly while the thickness varieble does not (p>0.001).  
+#Post hoc t-tests was done and to find what status is different from the others base on DVs age and time which shows significant mean different across "status" group. For "time" DV, only "alive" group show the difference to "died from melanoma" group because p value = 0.00043 < 0.05. Considering "age", all three groups shows the difference for each others because there p-value are all less than 0.05. 
+# The probability of at least one type I error is 1-0.95^10= 0.401. The Bonferroni correction α = 0.05/10 tests = 0.005 instead of 0.05 to keep the Type I error rate at 5%. As a result, the conclusion for "time" DV still hold while "died from melanoma" and "died from other causes" are no longer significantly different when consider "age" DV. 
+#For the initial assumption, only three out of nine of status group pairs (three pairs were compared for each DV) were found to differ significantly from the others in terms of thickness, age and time => the alternate hyposthesis (Ha) is validated by the tests.  
+
+```{r}
+#Randomization test:
+set.seed(348)
+diffs<-vector()
+
+for(i in 1:5000){
+  timediff <- data.frame(time=sample(project2_join$time),sex=project2_join$sex)
+  diffs[i]<-mean(timediff[timediff$sex=="female",]$time)-
+            mean(timediff[timediff$sex=="male",]$time)
+}
+
+
+#Actual mean difference of living time between two sex
+project2_join%>%group_by(sex)%>%summarise(means=mean(time))%>%summarise(`mean_diff:`=diff(means))
+#Two-tailed p-value
+mean(diffs>64.94425 | diffs< -64.94425)
+
+#Visualized plot
+{hist(diffs,main="Randomization test plot",ylab="Day lives"); abline(v = -64.94425,col="red")}
+
+```
+#Randomization test was performed to test the association between sex vs time by looking at the mean difference in living time after treatment. This is done to test whether the actual mean difference is due to chance by breaking the association. H0 is mean difference living time between two sex is the same|| Ha is mean difference living time between two sex is not the same. 
+#The two tail p-value is calculated probability of mean diffs that are less or greater than the actual mean difference. The result is 0.3902 which is greater than 0.05 => there is evidence shows that null hypothesis is correct and the living time between two sex are similar. 
+#The plot shows the distribution of mean difference in living time dur to chance in the sramble data. The red line indicates the actual mean difference. 
+
+
+```{r}
+library(tidyverse)
+library(lmtest)
+project2_join$ulcer<-recode(project2_join$ulcer, "0"="No", "1"="Yes")
+#Linear regression model
+fit<-lm(time ~ ulcer*thickness, data=project2_join)
+summary(fit)
+coef(fit)
+
+#Test for linearity, normality, and homoskedasticity
+ggplot(project2_join,aes(time,thickness,color=ulcer))+geom_point()+geom_smooth(method = 'lm',se=F)
+#Breuch-Pagan test for homoskedasticity
+library(sandwich); library(lmtest)
+bptest(fit)
+#linearlity
+resids<-fit$residuals
+fitvals<-fit$fitted.values
+ggplot()+geom_point(aes(fitvals,resids))+geom_hline(yintercept=0, color='red')
+#Normality
+ggplot()+geom_histogram(aes(resids),bins=20)
+ggplot()+geom_qq(aes(sample=resids))+geom_qq_line(aes(sample=resids), color='red')
+
+#Uncorrected vs corrected SE
+summary(fit)$coef[,1:2]
+coeftest(fit, vcov = vcovHC(fit))[,1:2]
+
+```
+#Multiple regression is performed to test whether there a difference in time living regarding thickness of tumor and present of ulceration. H0:Controlling for thickness, ulcer status does not explain variation in living time || H0: Controlling for ulcer status, thickness of tumor does not explain variation in living time. 
+# For the intercept, the living time is predicted to be 2443.89 day when controls for both thickness and ulcer status. This is the baseline. 
+#Controlling for ulcer status, there is a significant effect of thickness of tumor on living time (p<0.001) that for every one unit increase in tumor thickness, living time decreases -71.48 unit on average. However, after controlling for thickness there is no difference in living time between ulcer and non-ulcer patient (p>0.001). For ulceryes:thickness interaction, if the living time increase by 1 unit, the ulceration and thickmess of tumor would decrease -32.36.
+
+#According to the regression plot and the Breusch-Pagan test, homoskedasticity is not met because the points fan out as going up the line. Breuch-Pagan test was performed and has p-value is 0.02867 < 0.05 so the null hypothesis (homoskedasticity) is rejected. On the other hand, by using graphing method, linearity and normality assumption is met for this regression. 
+
+#After doing the corrected SE, there are small changes in SE of thickness and its interaction with ulceration. There is significant changes in value of SE of the intercept and ulceryes. 
+
+
+```{r}
+#Rerun same regression model with computation of  bootstrapped standard errors.
+boot_project<- sample_frac(project2_join, replace=T)
+# repeat 5000 times
+samp_distn<-replicate(5000, {
+boot_project<- sample_frac(project2_join, replace=T) 
+fit<-lm(time ~ ulcer*thickness, data=boot_project) 
+coef(fit) 
+})
+samp_distn %>% t %>% as.data.frame %>% summarize_all(sd)
+
+
+```
+#Similar to the comparision between corrected SE vs uncorrected SE, there are small changes in SE of thickness and its interaction with ulceration while there is significant changes in value of SE of the intercept and ulceryes.
+
+```{r}
+#Logistic regression predicting a binary categorical variable from explanatory variable
+project2_join <- project2_join%>%mutate(y=ifelse(ulcer=="Yes",1,0))
+head(project2_join)
+
+fit<-lm(y~sex+thickness,data=project2_join,family=binomial)
+coeftest(fit)
+exp(coef(fit))
+
+#Confusion matrix
+probs<-predict(fit,type="response")
+table(predict=as.numeric(probs>0.5),truth=project2_join$y)%>%addmargins
+
+# Density plot of log-odds
+fit<-glm(y~sex+thickness,data=project2_join,family=binomial)
+project2_join$logit<-predict(fit,type="link")
+project2_join%>%ggplot()+geom_density(aes(logit,color=ulcer,fill=ulcer), alpha=.4)+ theme(legend.position=c(.85,.85))+geom_vline(xintercept=0)+xlab("predictor (logit)")
+
+#ROC curve and AUC
+library(plotROC)
+ROCplot<-ggplot(project2_join)+geom_roc(aes(d=y,m=probs), n.cuts=0)
+ROCplot
+calc_auc(ROCplot)
+
+#10 fold CV
+class_diag<-function(probs,truth){
+
+tab<-table(factor(probs>.5,levels=c("FALSE","TRUE")),truth)
+acc=sum(diag(tab))/sum(tab)
+sens=tab[2,2]/colSums(tab)[2]
+spec=tab[1,1]/colSums(tab)[1]
+ppv=tab[2,2]/rowSums(tab)[2]
+
+if(is.numeric(truth)==FALSE & is.logical(truth)==FALSE) truth<-as.numeric(truth)-1
+
+#CALCULATE EXACT AUC
+ord<-order(probs, decreasing=TRUE)
+probs <- probs[ord]; truth <- truth[ord]
+
+TPR=cumsum(truth)/max(1,sum(truth)) 
+FPR=cumsum(!truth)/max(1,sum(!truth))
+
+dup<-c(probs[-1]>=probs[-length(probs)], FALSE)
+TPR<-c(0,TPR[!dup],1); FPR<-c(0,FPR[!dup],1)
+
+n <- length(TPR)
+auc<- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+
+data.frame(acc,sens,spec,ppv,auc)
+ }
+ 
+class_diag(probs,project2_join$y)
+
+
+set.seed(1234)
+k=10
+
+data<-project2_join[sample(nrow(project2_join)),] #put dataset in random order
+folds<-cut(seq(1:nrow(project2_join)),breaks=k,labels=F) #create folds
+
+diags<-NULL
+for(i in 1:k){          # FOR EACH OF 10 FOLDS
+train<-data[folds!=i,] # CREATE TRAINING SET
+test<-data[folds==i,]  # CREATE TESTING SET
+
+truth<-test$y
+
+fit<- glm(y~sex+thickness,data=train,family=binomial)
+probs<- predict(fit, newdata=test,type="response")
+
+diags<-rbind(diags,class_diag(probs,truth)) #CV DIAGNOSTICS FOR EACH FOLD
+}
+
+summarize_all(diags,mean)
+```
+#Intercept: odd of ulceration of sex female when control for thickness is 1.436
+#Control for thickness, the ulceration rate between male and female is significant different. By looking at the odd ratio, the coeficient for sexmale is 1.19 which odd of ulceration for male is 1.195 times higher compared to female. 
+#Controlling for sex, for every one unit increase in thickness, odd of ulceration increase by the factor of 1.0102 (not significant bc p=0.06>0.05).
+#Accuracy is (333+199)/887= 0.599 proportion of correctly classified cases (including true positive and true negative)
+#Sensitivity = 119/409 = 0.267 is true positive rate which is the probability of predicting 1 (ulcer) from sex and thickness is really 1.
+#Specificity = 333/478=0.696 is a true negative rate  which is the probability of predicting non-ulcer patient from sex and thickness is really non-ulcer
+#Precision (PPV) = 199/344=0.578 is the is the proportion of patient who are classified having ulcer and actually do. 
+#The ROCplot visualize the trade-off between sensitivity and specificity and AUC calculation quantified how well we are predicting ulcer from sex and thickness. AUC is 0.6099 which mean the model does a poor job in predicting the ulcer varieble from sex and tumor thickness.
+# Average out-of-sample Accuracy, Sensitivity, and Recall is 0.5997574, 0.4840078, 0.693595 respectively. Compared with the statistic data that was calculated from the confusion matrix, the statistic data from the 10 fold CV is very similar except for the sensitivity (0.267 vs 0.484). 
+
+```{r}
+#LASSO regression
+head(project2_join)
+library(glmnet)
+y<-as.matrix(project2_join$time)
+x<-model.matrix(y~(.),data=project2_join)[,-1] 
+head(x)
+
+cv<-cv.glmnet(x,y)
+lasso<-glmnet(x,y,lambda=cv$lambda.1se)
+coef(lasso)
+
+set.seed(1234)
+k=10
+data <- project2_join %>% sample_frac
+folds <- ntile(1:nrow(project2_join),n=10)
+diags<-NULL
+for(i in 1:k){
+  train <- data[folds!=i,] 
+  test <- data[folds==i,] 
+  truth <- test$y
+  fit <- glm(y~time,
+             data=train, family="binomial")
+  probs <- predict(fit, newdata=test, type="response" )
+  diags<-rbind(diags,class_diag(probs,truth))
+}
+diags%>%summarize_all(mean)
+```
+#Lasso Regression was done to select predictable varieble and prevent overfitting to enhance prediction accuracy. The varieble time are the most predictive y/ulcer variables!
+#Compared to the 10 fold in previous question (y~sex, thickness), the statistic data of this LASSO 10 fold CV is worse. It is a strange scenerio because the 10 fold after LASSO regression is supposed to provide a better AUC statistic because time is predicted to have the best predicted varieble by LASSO 
+
+```{R, echo=F}
+## DO NOT DELETE THIS BLOCK!
+sessionInfo()
+Sys.time()
+Sys.info()
+```
+
+

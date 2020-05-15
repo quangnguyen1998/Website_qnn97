@@ -1,0 +1,201 @@
+---
+title: "Project 1"
+date: '2020-03-17'
+output: html_document
+---
+##Name: Quang Nguyen qnn97
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, fig.align = "center", warning = F, message = F,
+tidy=TRUE, tidy.opts=list(width.cutoff=60), R.options=list(max.print=100))
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+#Introduction:
+#The dataset consist of the measurements on the patients with malignant melanoma. The data was collected in the patients who had their tumour removed surgically at the Department of Plastic Surgery, University Hospital of Odense, Denmark from 1962 to 1977. The data included 205 observations and 7 variebles in which 4 of them (age, time, thickness and year) are numeric varieble and 3 of them (sex, status, ulcer) are categorical varieble. These dataset was taken because I am interested in medicine and cancer in particular. Melanoma is popular known as skin cancer. Even though it is not a popular cancer type, it can be very deadly because it can spread to other organs rapidly if it is not discovered and treated properly. 
+#The original data is obtained and was divided into two different datasets. One consists of all numeric varieble "project_age" and another consists of categorical variebles "project_another". The project is intended to discover the prognostic determinant of melanoma such as thickness of tumor, ulcer of tumor, age,... There are major predicted associations such as higher age patients will likely to have ulcer and thicker tumor. Those people also has lower rate of survival after the operation than younger patients. These predictions along with others will be studied in this project.  
+
+
+```{r}
+library(boot)
+project1_qnn97<-melanoma
+help("melanoma")
+```
+
+#Data preparation:
+#This step is done to break up the original dataset and change the listing of some variebles for convenient analysis further.
+
+```{r}
+library(dplyr) 
+library(tidyr)
+library(tidyverse)
+
+#The first dataset
+project_age<-project1_qnn97%>%dplyr::select(age,time, thickness,year)%>%group_by(age)
+
+#The second dataset
+project_another<-project1_qnn97%>%dplyr::select(age,sex,ulcer,status)%>%group_by(age)
+#Change 0,1 observations in "sex" to female and male
+project_another$sex<-recode(project_another$sex,"0"= "female", "1"="male" )
+#Change 0,1 observations in "ulcer"" to Yes and No
+project_another$ulcer<-recode(project_another$ulcer, "0"="No", "1"="yes")
+head(project_age)
+#Change 1,2,3 to the status of patient after operation.
+project_another$status[project_another$status==1] <- "died from melanoma"
+project_another$status[project_another$status==2] <- "alive"
+project_another$status[project_another$status==3] <- "died from other causes"
+head(project_another)
+```
+#Tidying: Rearranging Wide/Long
+#Because the dataset is already tidy this step is done at the other places in the 
+
+```{r}
+#Joining/Merging
+project_joindata1<-project_another%>%full_join(project_age)
+library(dplyr)
+```
+
+#The original data was break up to two different dataset that have one identical varieble which is age. Full_join was chosen in order to taken all the original variebles because it is able to return all rows and all columns from both separated datasets. However, because, the varieble "age" is match so it is a joining varieble and joining dataset only have 7 varieble. The reason joining dataset has much more observation than original one because there are multiple matched between two dataset so all the combination of matched are returned. 
+
+```{r}
+#Summary Statistics
+
+#Number of distinct ages
+n_distinct(project_joindata1$age)
+n_distinct(project_joindata1$year)
+#five num stat of age, thickness
+fivenum(project_joindata1$thickness)
+fivenum(project_joindata1$age)
+
+#1.Mean survival time in days + mean tumor thickness of patients that have ages above 60
+project_joindata1%>%filter(age>=60)%>%summarize(mean_time=mean(time),mean_tumor_thickness=mean(thickness))%>%arrange(mean_time)%>%head()
+
+#2.Compare mean survival time in days + mean tumor thickness of patient that greater and less than 60. 
+project_joindata1%>%group_by(age_group=case_when(age>=60~"greater than 60",age<60~"less than 60"))%>%summarize(mean_time=mean(time), mean_tumor_thickness=mean(thickness),n=n())
+
+#3.mean/sd/se of survival time in days of patients in all status
+project_joindata1%>%group_by(status)%>%summarize(mean_time=mean(time), sd_time=sd(time), n=n(), se_time=sd_time/sqrt(n),mean_tumor_thickness=mean(thickness))
+
+#4.mutate the survival time to be in month 
+project_joindata1<-project_joindata1%>%mutate(time_in_month=time/30, months_live=round(time_in_month,2))
+project_joindata1<-dplyr::select(project_joindata1,-c(time_in_month))
+
+#5.fivenum of months_live
+fivenum(project_joindata1$months_live)
+
+#6.sex and "status" vs average month live after surgery
+project_joindata1%>%group_by(sex,status)%>%summarize(mean(months_live), n())
+
+#7.ulcer status, tumor thickness vs the average month live after operation
+project_joindata1%>%group_by(ulcer)%>%summarize(tumor_thickness=mean(thickness), month_live=mean(months_live))
+
+#8.relationship between age and month lives after operation
+project_joindata1%>%group_by(age)%>%summarize(month_live=mean(months_live))%>%arrange(desc(month_live))
+
+#9.Because average thickness of tumor is 1.94 mm. The month that patient can live depending on tumor thickness and ulcer was examined.
+project_joindata1%>%group_by(tumor_thickness=case_when(thickness>=1.94~"greater than average",thickness<1.94~"less than average"), ulcer)%>%summarize_at(c("months_live"),mean)
+
+#10.Average months live of patients that have operation from 1970 onward. 
+project_joindata1%>%filter(year>=1970)%>%group_by(year)%>%summarize(months_live=mean(months_live))%>%arrange(desc(months_live))
+
+#11.Number of patients correspond to each status in the year of 1970 onward. 
+project_joindata1%>%filter(year>=1970)%>%group_by(year,status)%>%summarize(number=n())%>%arrange(year)%>%pivot_wider(names_from="status", values_from="number")
+
+#12.Year before 1970 that have the most patient alive
+drop_false<-project_joindata1%>%filter(year<1970)%>%group_by(year,status=status=="alive")%>%summarize(number=n())%>%arrange(year)
+drop_false$status[drop_false$status==FALSE] <- NA
+drop_false$status[drop_false$status==TRUE]<- "alive"
+drop_false%>%na.omit()%>%arrange(desc(number))%>%head()
+
+#13.corelation of numeric varieble in dataset
+project_cor<-project_joindata1%>%select_if(is.numeric)%>%select(-time)
+cor(project_cor)
+tidycor<-cor(project_cor)%>%as.data.frame%>%rownames_to_column%>%
+  pivot_longer(-1,names_to="name",values_to="correlation")
+
+#Summarize/discuss all results in no more than two paragraphs
+```
+
+
+#The summary statistics are intended to give the overall overview of the prognostic variebles to sex, age and time/months_live. Overall, there is many evidences show that higher ages decrease the mean living_time of patient (supports by statistic#1,2,8). Especially, patients who are greater than 60 years old, have significant higher tumor thickness than younger patients and patient who are above 85 has distinctive lower living time (around 800 day or less). 
+#The other prognostic variebles are ulcer status and tumor thickness. While tumor thickness solely is not affect much the living time of the patient (statistic#9), patient who have ulcer have the tumor much thicker than the patient who does not (statistics#7). Ulcerated tumor can be considered as the important determinant that affect the complication of melanoma and the survival rate of patient after operation. Other than that, the year of operation also has unexpected relationship to the of the survival rate of patient that,after 1970, 1972 and 1973 has the most people alive while 1974 and 1977 have least and even less than years before 1970 (statistics#10,11,12)
+  
+
+3Visualization
+```{r}
+#Create a correlation heatmap of numeric variables
+project_cor%>%select_if(is.numeric)%>%cor%>%as.data.frame%>%
+rownames_to_column%>%pivot_longer(-1)%>%ggplot(aes(rowname,name,fill=value))+geom_tile()+geom_text(aes(label=round(value,3)),color = "black", size = 3)+xlab("correlated variebles")+ylab("correlated variebles")+ggtitle("Correlation Heat Map")
+```
+
+#the heat map of correlation show the relationship between numeric varieble in the dataset and verify some of the conclusion of summary statistics. We can see than year of operation has highest corelation to months that patient can live after (-0.479). The corelation is negative which means patient who do the surgery in the later year seem to live less than who did the year earlier which is unexpected. On the other hand, The age of patient has a moderate negative corelation (-0.286) to how long that patient can live. Even though it is not a strong relationship, it is reconfirm the statistic datas in the previous part of the assignment.
+
+
+#Barplot that shows the relationship between sex, status after operation and months that patient can live. 
+```{r}
+project_barplot1<-project_joindata1%>%group_by(sex,tumor_thickness=case_when(thickness>=1.94~"greater than average",thickness<1.94~"less than average"))%>%summarize_at(c("months_live"),mean)
+
+ggplot(data=project_barplot1, mapping = aes(x=sex, y=months_live))+geom_bar(aes(y=months_live, fill=tumor_thickness), stat="summary",fun.y="mean",position=position_dodge(),width = 0.8)+scale_y_continuous(breaks=seq(0,250,25))+ylab("Average months live")+
+ ggtitle("Barplot of sex, tumor thickness and average month live")+theme(plot.title = element_text(size = 12))+ scale_fill_brewer(palette="Spectral")
+```
+
+#This barplot is intended to show the relationship between tumor thickness to sex and to the mean survival time. There is no clear relationship between tumor thickness + sex to the survival time as predicted by previous statistics. However, there are differences between sex in getting tumor. Male patients seems to get more "less than average tumor" and less "more than average tumor" than women. 
+
+#Scatterplot for the relatiosnhip between age, ulcer status to months that patient can live
+```{r}
+ggplot(data=project_joindata1, mapping = aes(x=age, y=months_live))+
+  geom_point(aes(y=months_live, color=ulcer),stat="summary", fun.y="mean")+
+  ylab("Average months live")+xlab("age")+ggtitle("Scatterplot of age,ulcer status vs average month live")+
+  theme(legend.position=c(0.92,.85))+scale_color_brewer(palette="Dark2")+scale_x_continuous(breaks=seq(0,95,10))
+```
+
+#This scatterplot demonstrates the corelation between ulcer status to age to average month live. It shows that older patients (>60) tend to have more possibility to get ulcerate tumor. It also show how ulcer can affect survival rate of mid-age patient 30-60 years old that people don't have ulcerate tumor tend to live longer after the operation. Majority of patient who live 70 months or above don't have ulcer. According to the earlier statistics and this scatter plot it is validated that ulcer is a important factor that affect the outcome of melanoma treatment and survival rate.  
+
+
+```{r}
+library(cluster)
+clust_project<-project_joindata1%>%dplyr::select(age,months_live)
+#PAM1
+pam1<-clust_project%>%pam(k=3)
+pam1
+pam1project<-clust_project%>%tibble::add_column(cluster=as.factor(pam1$clustering))
+pam1project%>%ggplot(aes(age,months_live,color=cluster))+geom_point()
+pam1project%>%group_by(cluster)%>%summarize_if(is.numeric,mean,na.rm=T)
+plot(pam1,which=1)
+
+#PAM2
+pam2<-project_joindata1%>%select(-status,-sex,-ulcer,-time)%>%pam(3)
+pam2
+pam2project<-project_joindata1%>%tibble::add_column(cluster=as.factor(pam2$clustering))
+plot(pam2,which=2)
+#all three cluster has a reasonable structure
+project_joindata1[pam1$id.med,]
+
+pam2project_result<-pam2project%>%group_by(sex)%>%count(cluster)%>%arrange(desc(n))%>%pivot_wider(names_from="cluster",values_from="n",values_fill = list('n'=0))
+pam2project_result
+ggplot(pam2project, aes(x=age,y=months_live, color=cluster))+geom_point()
+
+
+#Cluster using categorical variables
+library(cluster)
+pam3project<-project_joindata1%>%select(-sex,-status,-ulcer)%>%mutate_if(is.character,as.factor)
+gower1<-daisy(pam3project,metric="gower")
+pam3<-pam(gower1,k=3,diss=T)
+plot(pam3)
+#Cluster 1 has no found substantial structure
+#Cluster 2 and 3 have weak structure 
+```
+
+
+
+
+
+
+
+
+
+

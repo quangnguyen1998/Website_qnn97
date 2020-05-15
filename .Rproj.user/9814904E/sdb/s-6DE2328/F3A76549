@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "---\ncategories:\n- projects\ndate: \"2016-10-02T22:55:05-04:00\"\nshowpagemeta: false\ntags:\n- projects\ntitle: Projects\n---\n\n## Projects\nThe projects were focused on analyze the relationships of the variebles within the dataset about melanoma using different methods. \n- [Exploratory Data Analysis with Tidyverse Tools](/project1/)\n- [Modeling, Testing, and Classification](/PROJECT2/)\n\n",
+    "created" : 1589520885550.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2670524338",
+    "id" : "F3A76549",
+    "lastKnownWriteTime" : 1589531706,
+    "last_content_update" : 1589531706564,
+    "path" : "~/Desktop/Project3/Website_qnn97/content/projects.md",
+    "project_path" : "content/projects.md",
+    "properties" : {
+    },
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "markdown"
+}

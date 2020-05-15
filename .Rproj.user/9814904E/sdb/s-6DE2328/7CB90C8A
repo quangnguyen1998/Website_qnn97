@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "baseurl = \"/\"\nlanguageCode = \"en-US\"\ntitle = \"SDS 348 Portfolio\"\n# Enable comments by entering your Disqus shortname\ndisqusShortname = \"\"\n# Enable Google Analytics by entering your tracking code\ngoogleAnalytics = \"\"\ntheme = \"hugo-sustain\"\n\n[permalinks]\n  post = \"/:year/:month/:day/:slug\"\n\n[params]\n  avatar = \"quangnguyen.jpeg\"\n  author = \"Quang Nguyen\"\n  description = \"Describe your website\"\n\n  # Custom assets can be linked with their paths relative to static/\n  custom_css = []\n  custom_js  = []\n\n[params.social]\n \n  Email         = \"q.nguyencns@utexas.edu\"\n  LinkedIn      = \"Quang Nguyen\"\n \n\n## Main Menu\n[[menu.main]]\n  name = \"blog\"\n  weight = 100\n  identifier = \"blog\"\n  url = \"/blog/\"\n[[menu.main]]\n  name = \"projects\"\n  identifier = \"projects\"\n  weight = 200\n  url = \"/projects/\"\n[[menu.main]]\n  name = \"resume\"\n  identifier = \"resume\"\n  weight = 300\n  url = \"/resume.pdf\"\n",
+    "created" : 1589519938736.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2518630318",
+    "id" : "7CB90C8A",
+    "lastKnownWriteTime" : 1589525308,
+    "last_content_update" : 1589525308431,
+    "path" : "~/Desktop/Project3/Website_qnn97/config.toml",
+    "project_path" : "config.toml",
+    "properties" : {
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "text"
+}

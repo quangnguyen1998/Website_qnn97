@@ -1,0 +1,529 @@
+---
+title: "Project 2"
+author: "Quang Nguyen"
+date: "2020-05-02"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+
+
+<div id="quang-nguyen-uteid-qnn97" class="section level2">
+<h2>Quang Nguyen UTEID: qnn97</h2>
+<p>This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <a href="http://rmarkdown.rstudio.com" class="uri">http://rmarkdown.rstudio.com</a>.</p>
+<p>When you click the <strong>Knit</strong> button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:</p>
+</div>
+<div id="introduction" class="section level1">
+<h1>Introduction:</h1>
+</div>
+<div id="the-dataset-consist-of-the-measurements-on-the-patients-with-malignant-melanoma.-the-data-was-collected-in-the-patients-who-had-their-tumour-removed-surgically-at-the-department-of-plastic-surgery-university-hospital-of-odense-denmark-from-1962-to-1977.-the-data-included-205-observations-and-7-variebles-in-which-4-of-them-age-time-thickness-and-year-are-numeric-varieble-and-3-of-them-sex-status-ulcer-are-categorical-varieble." class="section level1">
+<h1>The dataset consist of the measurements on the patients with malignant melanoma. The data was collected in the patients who had their tumour removed surgically at the Department of Plastic Surgery, University Hospital of Odense, Denmark from 1962 to 1977. The data included 205 observations and 7 variebles in which 4 of them (age, time, thickness and year) are numeric varieble and 3 of them (sex, status, ulcer) are categorical varieble.</h1>
+</div>
+<div id="in-this-project-the-relationship-between-time-ulcer-thickness-sex-will-be-discovered-following-the-result-of-the-project-1.-according-to-that-ulceration-of-tumor-thickness-of-tumor-are-expected-to-be-a-good-prediction-for-the-time-that-patient-can-live-after-the-operation.-formal-statistical-test-in-this-project-would-provide-the-inside-to-the-relationship-between-these-variebles." class="section level1">
+<h1>In this project, the relationship between time, ulcer, thickness, sex will be discovered following the result of the Project 1. According to that, ulceration of tumor, thickness of tumor are expected to be a good prediction for the time that patient can live after the operation. Formal statistical test in this project would provide the inside to the relationship between these variebles.</h1>
+</div>
+<div id="these-dataset-was-taken-because-i-am-interested-in-medicine-and-cancer-in-particular.-melanoma-is-popular-known-as-skin-cancer.-even-though-it-is-not-a-popular-cancer-type-it-can-be-very-deadly-because-it-can-spread-to-other-organs-rapidly-if-it-is-not-discovered-and-treated-properly." class="section level1">
+<h1>These dataset was taken because I am interested in medicine and cancer in particular. Melanoma is popular known as skin cancer. Even though it is not a popular cancer type, it can be very deadly because it can spread to other organs rapidly if it is not discovered and treated properly.</h1>
+<pre class="r"><code># Prepare dataset:
+library(boot)
+project2 &lt;- melanoma
+
+library(dplyr)
+library(tidyr)
+library(tidyverse)
+
+# Made two dataset and then join
+project2_1 &lt;- project2 %&gt;% dplyr::select(age, time, thickness, 
+    year) %&gt;% group_by(age)
+
+project2_2 &lt;- project2 %&gt;% dplyr::select(age, sex, ulcer, status) %&gt;% 
+    group_by(age)
+project2_2$sex &lt;- recode(project2_2$sex, `0` = &quot;female&quot;, `1` = &quot;male&quot;)
+
+# Change 1,2,3 to the status of patient after operation.
+project2_2$status[project2_2$status == 1] &lt;- &quot;died from melanoma&quot;
+project2_2$status[project2_2$status == 2] &lt;- &quot;alive&quot;
+project2_2$status[project2_2$status == 3] &lt;- &quot;died from other causes&quot;
+
+# join
+project2_join &lt;- project2_2 %&gt;% full_join(project2_1)
+head(project2_join)</code></pre>
+<pre><code>## # A tibble: 6 x 7
+## # Groups:   age [2]
+##     age sex   ulcer status                  time thickness  year
+##   &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt; &lt;chr&gt;                  &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt;
+## 1    76 male      1 died from other causes    10      6.76  1972
+## 2    76 male      1 died from other causes  1525      1.29  1970
+## 3    56 male      0 died from other causes    30      0.65  1968
+## 4    56 male      0 died from other causes   833      2.58  1971
+## 5    56 male      0 died from other causes  1156      1.34  1970
+## 6    56 male      0 died from other causes  1506      4.51  1970</code></pre>
+</div>
+<div id="talk-a-a-bit-about-data-preparation.-how-does-it-matter-in-the-following-tests." class="section level1">
+<h1>Talk a a bit about data preparation. how does it matter in the following tests.</h1>
+<pre class="r"><code># MANOVA
+man1 &lt;- manova(cbind(time, thickness, age) ~ status, data = project2_join)
+summary(man1)</code></pre>
+<pre><code>##            Df   Pillai approx F num Df den Df   Pr(&gt;F)    
+## status      2 0.039742   5.9672      6   1766 3.47e-06 ***
+## Residuals 884                                             
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code># Get univariate ANOVAs from MANOVA object
+summary.aov(man1)</code></pre>
+<pre><code>##  Response time :
+##              Df     Sum Sq Mean Sq F value    Pr(&gt;F)    
+## status        2   18429524 9214762  7.6184 0.0005243 ***
+## Residuals   884 1069231266 1209538                      
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+##  Response thickness :
+##              Df Sum Sq Mean Sq F value Pr(&gt;F)
+## status        2   23.9 11.9623  1.2999 0.2731
+## Residuals   884 8134.8  9.2023               
+## 
+##  Response age :
+##              Df Sum Sq Mean Sq F value   Pr(&gt;F)    
+## status        2   4208 2104.20  13.716 1.36e-06 ***
+## Residuals   884 135613  153.41                     
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code># Mean in time and age across three status of patients
+project2_join %&gt;% group_by(status) %&gt;% summarize(mean(time), 
+    mean(age))</code></pre>
+<pre><code>## # A tibble: 3 x 3
+##   status                 `mean(time)` `mean(age)`
+##   &lt;chr&gt;                         &lt;dbl&gt;       &lt;dbl&gt;
+## 1 alive                         2256.        53.1
+## 2 died from melanoma            1965.        56.0
+## 3 died from other causes        1926.        60.9</code></pre>
+<pre class="r"><code># Post-hoc test to find which group differs:
+pairwise.t.test(project2_join$time, project2_join$status, p.adj = &quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  project2_join$time and project2_join$status 
+## 
+##                        alive   died from melanoma
+## died from melanoma     0.00043 -                 
+## died from other causes 0.02429 0.80372           
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(project2_join$age, project2_join$status, p.adj = &quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  project2_join$age and project2_join$status 
+## 
+##                        alive   died from melanoma
+## died from melanoma     0.0020  -                 
+## died from other causes 2.9e-06 0.0051            
+## 
+## P value adjustment method: none</code></pre>
+</div>
+<div id="in-total-1-manova-3-anova-and-6-t-tests-were-performed-each-of-two-dvs-for-each-of-three-status-group." class="section level1">
+<h1>In total, 1 MANOVA, 3 ANOVA and 6 t-tests were performed (each of two DVs for each of three status group).</h1>
+</div>
+<div id="because-the-p-value-for-manova-is-much-less-than-0.05-the-overall-manova-is-significant-so-for-at-least-one-testing-dvs-timethicknessage-there-is-at-least-one-status-mean-is-different.-therefore-follow-up-univariate-anovas-was-done-on-each-variable." class="section level1">
+<h1>Because the p-value for MANOVA is much less than 0.05 the overall MANOVA is significant so, for at least one testing DVs (time,thickness,age), there is at least one “status” mean is different. Therefore, follow-up univariate ANOVAs was done on each variable.</h1>
+</div>
+<div id="according-to-the-anova-test-on-each-individual-dvs-there-are-only-age-and-time-shows-mean-different-across-status-group-significantly-while-the-thickness-varieble-does-not-p0.001." class="section level1">
+<h1>According to the ANOVA test on each individual DVs, there are only age and time shows mean different across “status” group significantly while the thickness varieble does not (p&gt;0.001).</h1>
+</div>
+<div id="post-hoc-t-tests-was-done-and-to-find-what-status-is-different-from-the-others-base-on-dvs-age-and-time-which-shows-significant-mean-different-across-status-group.-for-time-dv-only-alive-group-show-the-difference-to-died-from-melanoma-group-because-p-value-0.00043-0.05.-considering-age-all-three-groups-shows-the-difference-for-each-others-because-there-p-value-are-all-less-than-0.05." class="section level1">
+<h1>Post hoc t-tests was done and to find what status is different from the others base on DVs age and time which shows significant mean different across “status” group. For “time” DV, only “alive” group show the difference to “died from melanoma” group because p value = 0.00043 &lt; 0.05. Considering “age”, all three groups shows the difference for each others because there p-value are all less than 0.05.</h1>
+</div>
+<div id="the-probability-of-at-least-one-type-i-error-is-1-0.9510-0.401.-the-bonferroni-correction-α-0.0510-tests-0.005-instead-of-0.05-to-keep-the-type-i-error-rate-at-5.-as-a-result-the-conclusion-for-time-dv-still-hold-while-died-from-melanoma-and-died-from-other-causes-are-no-longer-significantly-different-when-consider-age-dv." class="section level1">
+<h1>The probability of at least one type I error is 1-0.95^10= 0.401. The Bonferroni correction α = 0.05/10 tests = 0.005 instead of 0.05 to keep the Type I error rate at 5%. As a result, the conclusion for “time” DV still hold while “died from melanoma” and “died from other causes” are no longer significantly different when consider “age” DV.</h1>
+</div>
+<div id="for-the-initial-assumption-only-three-out-of-nine-of-status-group-pairs-three-pairs-were-compared-for-each-dv-were-found-to-differ-significantly-from-the-others-in-terms-of-thickness-age-and-time-the-alternate-hyposthesis-ha-is-validated-by-the-tests." class="section level1">
+<h1>For the initial assumption, only three out of nine of status group pairs (three pairs were compared for each DV) were found to differ significantly from the others in terms of thickness, age and time =&gt; the alternate hyposthesis (Ha) is validated by the tests.</h1>
+<pre class="r"><code># Randomization test:
+set.seed(348)
+diffs &lt;- vector()
+
+for (i in 1:5000) {
+    timediff &lt;- data.frame(time = sample(project2_join$time), 
+        sex = project2_join$sex)
+    diffs[i] &lt;- mean(timediff[timediff$sex == &quot;female&quot;, ]$time) - 
+        mean(timediff[timediff$sex == &quot;male&quot;, ]$time)
+}
+
+
+# Actual mean difference of living time between two sex
+project2_join %&gt;% group_by(sex) %&gt;% summarise(means = mean(time)) %&gt;% 
+    summarise(`mean_diff:` = diff(means))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   `mean_diff:`
+##          &lt;dbl&gt;
+## 1        -64.9</code></pre>
+<pre class="r"><code># Two-tailed p-value
+mean(diffs &gt; 64.94425 | diffs &lt; -64.94425)</code></pre>
+<pre><code>## [1] 0.3962</code></pre>
+<pre class="r"><code># Visualized plot
+{
+    hist(diffs, main = &quot;Randomization test plot&quot;, ylab = &quot;Day lives&quot;)
+    abline(v = -64.94425, col = &quot;red&quot;)
+}</code></pre>
+<p><img src="/PROJECT2_files/figure-html/unnamed-chunk-3-1.png" width="768" style="display: block; margin: auto;" /> #Randomization test was performed to test the association between sex vs time by looking at the mean difference in living time after treatment. This is done to test whether the actual mean difference is due to chance by breaking the association. H0 is mean difference living time between two sex is the same|| Ha is mean difference living time between two sex is not the same. #The two tail p-value is calculated probability of mean diffs that are less or greater than the actual mean difference. The result is 0.3902 which is greater than 0.05 =&gt; there is evidence shows that null hypothesis is correct and the living time between two sex are similar. #The plot shows the distribution of mean difference in living time dur to chance in the sramble data. The red line indicates the actual mean difference.</p>
+<pre class="r"><code>library(tidyverse)
+library(lmtest)
+project2_join$ulcer &lt;- recode(project2_join$ulcer, `0` = &quot;No&quot;, 
+    `1` = &quot;Yes&quot;)
+# Linear regression model
+fit &lt;- lm(time ~ ulcer * thickness, data = project2_join)
+summary(fit)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = time ~ ulcer * thickness, data = project2_join)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -2367.4  -722.3  -210.1   824.9  3488.2 
+## 
+## Coefficients:
+##                    Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)         2443.89      67.88  36.001  &lt; 2e-16 ***
+## ulcerYes             -65.94     103.03  -0.640    0.522    
+## thickness            -71.48      16.40  -4.360 1.45e-05 ***
+## ulcerYes:thickness   -32.36      23.83  -1.358    0.175    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 1072 on 883 degrees of freedom
+## Multiple R-squared:  0.06638,    Adjusted R-squared:  0.06321 
+## F-statistic: 20.93 on 3 and 883 DF,  p-value: 4.2e-13</code></pre>
+<pre class="r"><code>coef(fit)</code></pre>
+<pre><code>##        (Intercept)           ulcerYes          thickness ulcerYes:thickness 
+##         2443.89482          -65.94442          -71.48434          -32.35959</code></pre>
+<pre class="r"><code># Test for linearity, normality, and homoskedasticity
+ggplot(project2_join, aes(time, thickness, color = ulcer)) + 
+    geom_point() + geom_smooth(method = &quot;lm&quot;, se = F)</code></pre>
+<p><img src="/PROJECT2_files/figure-html/unnamed-chunk-4-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Breuch-Pagan test for homoskedasticity
+library(sandwich)
+library(lmtest)
+bptest(fit)</code></pre>
+<pre><code>## 
+##  studentized Breusch-Pagan test
+## 
+## data:  fit
+## BP = 9.0471, df = 3, p-value = 0.02867</code></pre>
+<pre class="r"><code># linearlity
+resids &lt;- fit$residuals
+fitvals &lt;- fit$fitted.values
+ggplot() + geom_point(aes(fitvals, resids)) + geom_hline(yintercept = 0, 
+    color = &quot;red&quot;)</code></pre>
+<p><img src="/PROJECT2_files/figure-html/unnamed-chunk-4-2.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Normality
+ggplot() + geom_histogram(aes(resids), bins = 20)</code></pre>
+<p><img src="/PROJECT2_files/figure-html/unnamed-chunk-4-3.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ggplot() + geom_qq(aes(sample = resids)) + geom_qq_line(aes(sample = resids), 
+    color = &quot;red&quot;)</code></pre>
+<p><img src="/PROJECT2_files/figure-html/unnamed-chunk-4-4.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Uncorrected vs corrected SE
+summary(fit)$coef[, 1:2]</code></pre>
+<pre><code>##                      Estimate Std. Error
+## (Intercept)        2443.89482   67.88318
+## ulcerYes            -65.94442  103.03383
+## thickness           -71.48434   16.39532
+## ulcerYes:thickness  -32.35959   23.83207</code></pre>
+<pre class="r"><code>coeftest(fit, vcov = vcovHC(fit))[, 1:2]</code></pre>
+<pre><code>##                      Estimate Std. Error
+## (Intercept)        2443.89482   63.71476
+## ulcerYes            -65.94442   96.79161
+## thickness           -71.48434   17.66019
+## ulcerYes:thickness  -32.35959   23.85165</code></pre>
+</div>
+<div id="multiple-regression-is-performed-to-test-whether-there-a-difference-in-time-living-regarding-thickness-of-tumor-and-present-of-ulceration.-h0controlling-for-thickness-ulcer-status-does-not-explain-variation-in-living-time-h0-controlling-for-ulcer-status-thickness-of-tumor-does-not-explain-variation-in-living-time." class="section level1">
+<h1>Multiple regression is performed to test whether there a difference in time living regarding thickness of tumor and present of ulceration. H0:Controlling for thickness, ulcer status does not explain variation in living time || H0: Controlling for ulcer status, thickness of tumor does not explain variation in living time.</h1>
+</div>
+<div id="for-the-intercept-the-living-time-is-predicted-to-be-2443.89-day-when-controls-for-both-thickness-and-ulcer-status.-this-is-the-baseline." class="section level1">
+<h1>For the intercept, the living time is predicted to be 2443.89 day when controls for both thickness and ulcer status. This is the baseline.</h1>
+</div>
+<div id="controlling-for-ulcer-status-there-is-a-significant-effect-of-thickness-of-tumor-on-living-time-p0.001-that-for-every-one-unit-increase-in-tumor-thickness-living-time-decreases--71.48-unit-on-average.-however-after-controlling-for-thickness-there-is-no-difference-in-living-time-between-ulcer-and-non-ulcer-patient-p0.001.-for-ulceryesthickness-interaction-if-the-living-time-increase-by-1-unit-the-ulceration-and-thickmess-of-tumor-would-decrease--32.36." class="section level1">
+<h1>Controlling for ulcer status, there is a significant effect of thickness of tumor on living time (p&lt;0.001) that for every one unit increase in tumor thickness, living time decreases -71.48 unit on average. However, after controlling for thickness there is no difference in living time between ulcer and non-ulcer patient (p&gt;0.001). For ulceryes:thickness interaction, if the living time increase by 1 unit, the ulceration and thickmess of tumor would decrease -32.36.</h1>
+</div>
+<div id="according-to-the-regression-plot-and-the-breusch-pagan-test-homoskedasticity-is-not-met-because-the-points-fan-out-as-going-up-the-line.-breuch-pagan-test-was-performed-and-has-p-value-is-0.02867-0.05-so-the-null-hypothesis-homoskedasticity-is-rejected.-on-the-other-hand-by-using-graphing-method-linearity-and-normality-assumption-is-met-for-this-regression." class="section level1">
+<h1>According to the regression plot and the Breusch-Pagan test, homoskedasticity is not met because the points fan out as going up the line. Breuch-Pagan test was performed and has p-value is 0.02867 &lt; 0.05 so the null hypothesis (homoskedasticity) is rejected. On the other hand, by using graphing method, linearity and normality assumption is met for this regression.</h1>
+</div>
+<div id="after-doing-the-corrected-se-there-are-small-changes-in-se-of-thickness-and-its-interaction-with-ulceration.-there-is-significant-changes-in-value-of-se-of-the-intercept-and-ulceryes." class="section level1">
+<h1>After doing the corrected SE, there are small changes in SE of thickness and its interaction with ulceration. There is significant changes in value of SE of the intercept and ulceryes.</h1>
+<pre class="r"><code># Rerun same regression model with computation of
+# bootstrapped standard errors.
+boot_project &lt;- sample_frac(project2_join, replace = T)
+# repeat 5000 times
+samp_distn &lt;- replicate(5000, {
+    boot_project &lt;- sample_frac(project2_join, replace = T)
+    fit &lt;- lm(time ~ ulcer * thickness, data = boot_project)
+    coef(fit)
+})
+samp_distn %&gt;% t %&gt;% as.data.frame %&gt;% summarize_all(sd)</code></pre>
+<pre><code>##   (Intercept) ulcerYes thickness ulcerYes:thickness
+## 1    59.62608 91.82589  16.44968           22.96647</code></pre>
+</div>
+<div id="similar-to-the-comparision-between-corrected-se-vs-uncorrected-se-there-are-small-changes-in-se-of-thickness-and-its-interaction-with-ulceration-while-there-is-significant-changes-in-value-of-se-of-the-intercept-and-ulceryes." class="section level1">
+<h1>Similar to the comparision between corrected SE vs uncorrected SE, there are small changes in SE of thickness and its interaction with ulceration while there is significant changes in value of SE of the intercept and ulceryes.</h1>
+<pre class="r"><code># Logistic regression predicting a binary categorical
+# variable from explanatory variable
+project2_join &lt;- project2_join %&gt;% mutate(y = ifelse(ulcer == 
+    &quot;Yes&quot;, 1, 0))
+head(project2_join)</code></pre>
+<pre><code>## # A tibble: 6 x 8
+## # Groups:   age [2]
+##     age sex   ulcer status                  time thickness  year     y
+##   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;                  &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1    76 male  Yes   died from other causes    10      6.76  1972     1
+## 2    76 male  Yes   died from other causes  1525      1.29  1970     1
+## 3    56 male  No    died from other causes    30      0.65  1968     0
+## 4    56 male  No    died from other causes   833      2.58  1971     0
+## 5    56 male  No    died from other causes  1156      1.34  1970     0
+## 6    56 male  No    died from other causes  1506      4.51  1970     0</code></pre>
+<pre class="r"><code>fit &lt;- lm(y ~ sex + thickness, data = project2_join, family = binomial)
+coeftest(fit)</code></pre>
+<pre><code>## 
+## t test of coefficients:
+## 
+##              Estimate Std. Error t value  Pr(&gt;|t|)    
+## (Intercept) 0.3620695  0.0264125 13.7083 &lt; 2.2e-16 ***
+## sexmale     0.1806631  0.0340006  5.3135 1.362e-07 ***
+## thickness   0.0101674  0.0054319  1.8718   0.06156 .  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code>exp(coef(fit))</code></pre>
+<pre><code>## (Intercept)     sexmale   thickness 
+##    1.436299    1.198012    1.010219</code></pre>
+<pre class="r"><code># Confusion matrix
+probs &lt;- predict(fit, type = &quot;response&quot;)
+table(predict = as.numeric(probs &gt; 0.5), truth = project2_join$y) %&gt;% 
+    addmargins</code></pre>
+<pre><code>##        truth
+## predict   0   1 Sum
+##     0   333 210 543
+##     1   145 199 344
+##     Sum 478 409 887</code></pre>
+<pre class="r"><code># Density plot of log-odds
+fit &lt;- glm(y ~ sex + thickness, data = project2_join, family = binomial)
+project2_join$logit &lt;- predict(fit, type = &quot;link&quot;)
+project2_join %&gt;% ggplot() + geom_density(aes(logit, color = ulcer, 
+    fill = ulcer), alpha = 0.4) + theme(legend.position = c(0.85, 
+    0.85)) + geom_vline(xintercept = 0) + xlab(&quot;predictor (logit)&quot;)</code></pre>
+<p><img src="/PROJECT2_files/figure-html/unnamed-chunk-6-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># ROC curve and AUC
+library(plotROC)
+ROCplot &lt;- ggplot(project2_join) + geom_roc(aes(d = y, m = probs), 
+    n.cuts = 0)
+ROCplot</code></pre>
+<p><img src="/PROJECT2_files/figure-html/unnamed-chunk-6-2.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>calc_auc(ROCplot)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1    -1 0.6099963</code></pre>
+<pre class="r"><code># 10 fold CV
+class_diag &lt;- function(probs, truth) {
+    
+    tab &lt;- table(factor(probs &gt; 0.5, levels = c(&quot;FALSE&quot;, &quot;TRUE&quot;)), 
+        truth)
+    acc = sum(diag(tab))/sum(tab)
+    sens = tab[2, 2]/colSums(tab)[2]
+    spec = tab[1, 1]/colSums(tab)[1]
+    ppv = tab[2, 2]/rowSums(tab)[2]
+    
+    if (is.numeric(truth) == FALSE &amp; is.logical(truth) == FALSE) 
+        truth &lt;- as.numeric(truth) - 1
+    
+    # CALCULATE EXACT AUC
+    ord &lt;- order(probs, decreasing = TRUE)
+    probs &lt;- probs[ord]
+    truth &lt;- truth[ord]
+    
+    TPR = cumsum(truth)/max(1, sum(truth))
+    FPR = cumsum(!truth)/max(1, sum(!truth))
+    
+    dup &lt;- c(probs[-1] &gt;= probs[-length(probs)], FALSE)
+    TPR &lt;- c(0, TPR[!dup], 1)
+    FPR &lt;- c(0, FPR[!dup], 1)
+    
+    n &lt;- length(TPR)
+    auc &lt;- sum(((TPR[-1] + TPR[-n])/2) * (FPR[-1] - FPR[-n]))
+    
+    data.frame(acc, sens, spec, ppv, auc)
+}
+
+class_diag(probs, project2_join$y)</code></pre>
+<pre><code>##         acc      sens      spec       ppv       auc
+## 1 0.5997745 0.4865526 0.6966527 0.5784884 0.6099963</code></pre>
+<pre class="r"><code>set.seed(1234)
+k = 10
+
+data &lt;- project2_join[sample(nrow(project2_join)), ]  #put dataset in random order
+folds &lt;- cut(seq(1:nrow(project2_join)), breaks = k, labels = F)  #create folds
+
+diags &lt;- NULL
+for (i in 1:k) {
+    # FOR EACH OF 10 FOLDS
+    train &lt;- data[folds != i, ]  # CREATE TRAINING SET
+    test &lt;- data[folds == i, ]  # CREATE TESTING SET
+    
+    truth &lt;- test$y
+    
+    fit &lt;- glm(y ~ sex + thickness, data = train, family = binomial)
+    probs &lt;- predict(fit, newdata = test, type = &quot;response&quot;)
+    
+    diags &lt;- rbind(diags, class_diag(probs, truth))  #CV DIAGNOSTICS FOR EACH FOLD
+}
+
+summarize_all(diags, mean)</code></pre>
+<pre><code>##         acc      sens     spec      ppv       auc
+## 1 0.5850741 0.4767721 0.676234 0.556754 0.6085254</code></pre>
+</div>
+<div id="intercept-odd-of-ulceration-of-sex-female-when-control-for-thickness-is-1.436" class="section level1">
+<h1>Intercept: odd of ulceration of sex female when control for thickness is 1.436</h1>
+</div>
+<div id="control-for-thickness-the-ulceration-rate-between-male-and-female-is-significant-different.-by-looking-at-the-odd-ratio-the-coeficient-for-sexmale-is-1.19-which-odd-of-ulceration-for-male-is-1.195-times-higher-compared-to-female." class="section level1">
+<h1>Control for thickness, the ulceration rate between male and female is significant different. By looking at the odd ratio, the coeficient for sexmale is 1.19 which odd of ulceration for male is 1.195 times higher compared to female.</h1>
+</div>
+<div id="controlling-for-sex-for-every-one-unit-increase-in-thickness-odd-of-ulceration-increase-by-the-factor-of-1.0102-not-significant-bc-p0.060.05." class="section level1">
+<h1>Controlling for sex, for every one unit increase in thickness, odd of ulceration increase by the factor of 1.0102 (not significant bc p=0.06&gt;0.05).</h1>
+</div>
+<div id="accuracy-is-333199887-0.599-proportion-of-correctly-classified-cases-including-true-positive-and-true-negative" class="section level1">
+<h1>Accuracy is (333+199)/887= 0.599 proportion of correctly classified cases (including true positive and true negative)</h1>
+</div>
+<div id="sensitivity-119409-0.267-is-true-positive-rate-which-is-the-probability-of-predicting-1-ulcer-from-sex-and-thickness-is-really-1." class="section level1">
+<h1>Sensitivity = 119/409 = 0.267 is true positive rate which is the probability of predicting 1 (ulcer) from sex and thickness is really 1.</h1>
+</div>
+<div id="specificity-3334780.696-is-a-true-negative-rate-which-is-the-probability-of-predicting-non-ulcer-patient-from-sex-and-thickness-is-really-non-ulcer" class="section level1">
+<h1>Specificity = 333/478=0.696 is a true negative rate which is the probability of predicting non-ulcer patient from sex and thickness is really non-ulcer</h1>
+</div>
+<div id="precision-ppv-1993440.578-is-the-is-the-proportion-of-patient-who-are-classified-having-ulcer-and-actually-do." class="section level1">
+<h1>Precision (PPV) = 199/344=0.578 is the is the proportion of patient who are classified having ulcer and actually do.</h1>
+</div>
+<div id="the-rocplot-visualize-the-trade-off-between-sensitivity-and-specificity-and-auc-calculation-quantified-how-well-we-are-predicting-ulcer-from-sex-and-thickness.-auc-is-0.6099-which-mean-the-model-does-a-poor-job-in-predicting-the-ulcer-varieble-from-sex-and-tumor-thickness." class="section level1">
+<h1>The ROCplot visualize the trade-off between sensitivity and specificity and AUC calculation quantified how well we are predicting ulcer from sex and thickness. AUC is 0.6099 which mean the model does a poor job in predicting the ulcer varieble from sex and tumor thickness.</h1>
+</div>
+<div id="average-out-of-sample-accuracy-sensitivity-and-recall-is-0.5997574-0.4840078-0.693595-respectively.-compared-with-the-statistic-data-that-was-calculated-from-the-confusion-matrix-the-statistic-data-from-the-10-fold-cv-is-very-similar-except-for-the-sensitivity-0.267-vs-0.484." class="section level1">
+<h1>Average out-of-sample Accuracy, Sensitivity, and Recall is 0.5997574, 0.4840078, 0.693595 respectively. Compared with the statistic data that was calculated from the confusion matrix, the statistic data from the 10 fold CV is very similar except for the sensitivity (0.267 vs 0.484).</h1>
+<pre class="r"><code># LASSO regression
+head(project2_join)</code></pre>
+<pre><code>## # A tibble: 6 x 9
+## # Groups:   age [2]
+##     age sex   ulcer status                  time thickness  year     y logit
+##   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;                  &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1    76 male  Yes   died from other causes    10      6.76  1972     1 0.455
+## 2    76 male  Yes   died from other causes  1525      1.29  1970     1 0.224
+## 3    56 male  No    died from other causes    30      0.65  1968     0 0.197
+## 4    56 male  No    died from other causes   833      2.58  1971     0 0.279
+## 5    56 male  No    died from other causes  1156      1.34  1970     0 0.227
+## 6    56 male  No    died from other causes  1506      4.51  1970     0 0.360</code></pre>
+<pre class="r"><code>library(glmnet)
+y &lt;- as.matrix(project2_join$time)
+x &lt;- model.matrix(y ~ (.), data = project2_join)[, -1]
+head(x)</code></pre>
+<pre><code>##   age sexmale ulcerYes statusdied from melanoma statusdied from other causes
+## 1  76       1        1                        0                            1
+## 2  76       1        1                        0                            1
+## 3  56       1        0                        0                            1
+## 4  56       1        0                        0                            1
+## 5  56       1        0                        0                            1
+## 6  56       1        0                        0                            1
+##   time thickness year     logit
+## 1   10      6.76 1972 0.4545531
+## 2 1525      1.29 1970 0.2244173
+## 3   30      0.65 1968 0.1974910
+## 4  833      2.58 1971 0.2786906
+## 5 1156      1.34 1970 0.2265209
+## 6 1506      4.51 1970 0.3598903</code></pre>
+<pre class="r"><code>cv &lt;- cv.glmnet(x, y)
+lasso &lt;- glmnet(x, y, lambda = cv$lambda.1se)
+coef(lasso)</code></pre>
+<pre><code>## 10 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
+##                                      s0
+## (Intercept)                  62.5779406
+## age                           .        
+## sexmale                       .        
+## ulcerYes                      .        
+## statusdied from melanoma      .        
+## statusdied from other causes  .        
+## time                          0.9708495
+## thickness                     .        
+## year                          .        
+## logit                         .</code></pre>
+<pre class="r"><code>set.seed(1234)
+k = 10
+data &lt;- project2_join %&gt;% sample_frac
+folds &lt;- ntile(1:nrow(project2_join), n = 10)
+diags &lt;- NULL
+for (i in 1:k) {
+    train &lt;- data[folds != i, ]
+    test &lt;- data[folds == i, ]
+    truth &lt;- test$y
+    fit &lt;- glm(y ~ time, data = train, family = &quot;binomial&quot;)
+    probs &lt;- predict(fit, newdata = test, type = &quot;response&quot;)
+    diags &lt;- rbind(diags, class_diag(probs, truth))
+}
+diags %&gt;% summarize_all(mean)</code></pre>
+<pre><code>##         acc      sens      spec       ppv       auc
+## 1 0.5578779 0.2264323 0.8447909 0.5430142 0.5301912</code></pre>
+</div>
+<div id="lasso-regression-was-done-to-select-predictable-varieble-and-prevent-overfitting-to-enhance-prediction-accuracy.-the-varieble-time-are-the-most-predictive-yulcer-variables" class="section level1">
+<h1>Lasso Regression was done to select predictable varieble and prevent overfitting to enhance prediction accuracy. The varieble time are the most predictive y/ulcer variables!</h1>
+</div>
+<div id="compared-to-the-10-fold-in-previous-question-ysex-thickness-the-statistic-data-of-this-lasso-10-fold-cv-is-worse.-it-is-a-strange-scenerio-because-the-10-fold-after-lasso-regression-is-supposed-to-provide-a-better-auc-statistic-because-time-is-predicted-to-have-the-best-predicted-varieble-by-lasso" class="section level1">
+<h1>Compared to the 10 fold in previous question (y~sex, thickness), the statistic data of this LASSO 10 fold CV is worse. It is a strange scenerio because the 10 fold after LASSO regression is supposed to provide a better AUC statistic because time is predicted to have the best predicted varieble by LASSO</h1>
+<pre><code>## R version 3.6.2 (2019-12-12)
+## Platform: x86_64-apple-darwin15.6.0 (64-bit)
+## Running under: macOS Catalina 10.15.4
+## 
+## Matrix products: default
+## BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
+## 
+## locale:
+## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+##  [1] glmnet_3.0-2    Matrix_1.2-18   plotROC_2.2.1   sandwich_2.5-1 
+##  [5] lmtest_0.9-37   zoo_1.8-7       forcats_0.4.0   stringr_1.4.0  
+##  [9] purrr_0.3.3     readr_1.3.1     tibble_2.1.3    ggplot2_3.3.0  
+## [13] tidyverse_1.3.0 tidyr_1.0.2     dplyr_0.8.4     boot_1.3-24    
+## [17] knitr_1.28     
+## 
+## loaded via a namespace (and not attached):
+##  [1] Rcpp_1.0.3       lubridate_1.7.4  lattice_0.20-38  foreach_1.5.0   
+##  [5] assertthat_0.2.1 digest_0.6.25    utf8_1.1.4       R6_2.4.1        
+##  [9] cellranger_1.1.0 plyr_1.8.5       backports_1.1.5  reprex_0.3.0    
+## [13] evaluate_0.14    httr_1.4.1       blogdown_0.18    pillar_1.4.3    
+## [17] rlang_0.4.4      readxl_1.3.1     rstudioapi_0.11  rmarkdown_2.1   
+## [21] labeling_0.3     splines_3.6.2    munsell_0.5.0    broom_0.5.4     
+## [25] compiler_3.6.2   modelr_0.1.6     xfun_0.12        pkgconfig_2.0.3 
+## [29] shape_1.4.4      mgcv_1.8-31      htmltools_0.4.0  tidyselect_1.0.0
+## [33] bookdown_0.18    codetools_0.2-16 fansi_0.4.1      crayon_1.3.4    
+## [37] dbplyr_1.4.2     withr_2.1.2      grid_3.6.2       nlme_3.1-142    
+## [41] jsonlite_1.6.1   gtable_0.3.0     lifecycle_0.1.0  DBI_1.1.0       
+## [45] magrittr_1.5     formatR_1.7      scales_1.1.0     cli_2.0.2       
+## [49] stringi_1.4.6    farver_2.0.3     fs_1.3.1         xml2_1.2.2      
+## [53] generics_0.0.2   vctrs_0.2.3      iterators_1.0.12 tools_3.6.2     
+## [57] glue_1.3.1       hms_0.5.3        yaml_2.2.1       colorspace_1.4-1
+## [61] rvest_0.3.5      haven_2.2.0</code></pre>
+<pre><code>## [1] &quot;2020-05-15 03:31:38 CDT&quot;</code></pre>
+<pre><code>##                                                                                             sysname 
+##                                                                                            &quot;Darwin&quot; 
+##                                                                                             release 
+##                                                                                            &quot;19.4.0&quot; 
+##                                                                                             version 
+## &quot;Darwin Kernel Version 19.4.0: Wed Mar  4 22:28:40 PST 2020; root:xnu-6153.101.6~15/RELEASE_X86_64&quot; 
+##                                                                                            nodename 
+##                                                                       &quot;Quangs-MBP.fios-router.home&quot; 
+##                                                                                             machine 
+##                                                                                            &quot;x86_64&quot; 
+##                                                                                               login 
+##                                                                                              &quot;root&quot; 
+##                                                                                                user 
+##                                                                                       &quot;quangnguyen&quot; 
+##                                                                                      effective_user 
+##                                                                                       &quot;quangnguyen&quot;</code></pre>
+</div>

@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "<section id=\"projects\">\n  <div class=\"container\">\n    <h3>{{ .Site.Data.projects.name }}</h3>\n    <div class=\"panel panel-default\">\n      <div class=\"panel-body\">\n   {{.Content}}\n      </div>\n    </div>\n  </div>\n</section>\n",
+    "created" : 1589520709124.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3534023884",
+    "id" : "50A480E4",
+    "lastKnownWriteTime" : 1589520747,
+    "last_content_update" : 1589520747269,
+    "path" : "~/Desktop/Project3/Website_qnn97/themes/hugo-sustain/layouts/_default/projects.html",
+    "project_path" : "themes/hugo-sustain/layouts/_default/projects.html",
+    "properties" : {
+    },
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "html"
+}

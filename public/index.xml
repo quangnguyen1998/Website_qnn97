@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>SDS 348 Portfolio</title>
+    <link>/</link>
+    <description>Recent content on SDS 348 Portfolio</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <lastBuildDate>Sat, 02 May 2020 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>My New Post</title>
+      <link>/blog/my-new-post/</link>
+      <pubDate>Fri, 15 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/blog/my-new-post/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Project 2</title>
+      <link>/project2/</link>
+      <pubDate>Sat, 02 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/project2/</guid>
+      <description>Quang Nguyen UTEID: qnn97 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see http://rmarkdown.rstudio.com.
+When you click the Knit button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:</description>
+    </item>
+    
+    <item>
+      <title>Project 1</title>
+      <link>/project1/</link>
+      <pubDate>Tue, 17 Mar 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/project1/</guid>
+      <description>Name: Quang Nguyen qnn97  R Markdown This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see http://rmarkdown.rstudio.com.
+When you click the Knit button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:</description>
+    </item>
+    
+    <item>
+      <title>Projects</title>
+      <link>/projects/</link>
+      <pubDate>Sun, 02 Oct 2016 22:55:05 -0400</pubDate>
+      
+      <guid>/projects/</guid>
+      <description>Projects The projects were focused on analyze the relationships of the variebles within the dataset about melanoma using different methods.
+ Exploratory Data Analysis with Tidyverse Tools Modeling, Testing, and Classification  </description>
+    </item>
+    
+  </channel>
+</rss>
