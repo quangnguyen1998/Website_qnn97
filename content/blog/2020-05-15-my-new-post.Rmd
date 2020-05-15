@@ -21,7 +21,8 @@ starch_calories={'brownrice':216, 'whiterice':206, 'potato':163, 'corn':177, 'oa
 }
 starch_calories
 
-x=2
+import numpy as np
+array1=np.array([[1,2],[3,4]])
 ```
 
 ```{r}
@@ -33,6 +34,6 @@ calo<-py$starch_calories
 total<-calo$brownrice + calo$whiterice + calo$potato + calo$corn + calo$oatmeal + calo$whitebread
 total
 
-py$x
+py$array1 + 3
 ```
 

@@ -567,3 +567,31 @@ remote: Resolving deltas:   0% (0/23)[Kremote: Resolving deltas:   4% (1/23)[
 To https://github.com/quangnguyen1998/Website_qnn97.git
    a04b64e..a73bfd3  master -> master
 ]0;/stor/home/qnn97/Project3/Website_qnn97]0;qnn97@educcomp01: ~/Project3/Website_qnn97[01;32mqnn97@educcomp01[00m:[01;34m~/Project3/Website_qnn97[00m$ git add .
+]0;/stor/home/qnn97/Project3/Website_qnn97]0;qnn97@educcomp01: ~/Project3/Website_qnn97[01;32mqnn97@educcomp01[00m:[01;34m~/Project3/Website_qnn97[00m$ git commit -m "hi"[K[K[Khii"
+[master 26bcca2] hii
+ Committer: Quang Nguyen <qnn97@educcomp01.ccbb.utexas.edu>
+Your name and email address were configured automatically based
+on your username and hostname. Please check that they are accurate.
+You can suppress this message by setting them explicitly. Run the
+following command and follow the instructions in your editor to edit
+your configuration file:
+
+    git config --global --edit
+
+After doing this, you may fix the identity used for this commit with:
+
+    git commit --amend --reset-author
+
+ 6 files changed, 35 insertions(+), 6 deletions(-)
+]0;/stor/home/qnn97/Project3/Website_qnn97]0;qnn97@educcomp01: ~/Project3/Website_qnn97[01;32mqnn97@educcomp01[00m:[01;34m~/Project3/Website_qnn97[00m$ git push origin master
+Username for 'https://github.com': quangngue yen1998
+Password for 'https://quangnguyen1998@github.com': 
+Counting objects: 13, done.
+Delta compression using up to 16 threads.
+Compressing objects:   8% (1/12)   Compressing objects:  16% (2/12)   Compressing objects:  25% (3/12)   Compressing objects:  33% (4/12)   Compressing objects:  41% (5/12)   Compressing objects:  50% (6/12)   Compressing objects:  58% (7/12)   Compressing objects:  66% (8/12)   Compressing objects:  75% (9/12)   Compressing objects:  83% (10/12)   Compressing objects:  91% (11/12)   Compressing objects: 100% (12/12)   Compressing objects: 100% (12/12), done.
+Writing objects:   7% (1/13)   Writing objects:  15% (2/13)   Writing objects:  23% (3/13)   Writing objects:  30% (4/13)   Writing objects:  38% (5/13)   Writing objects:  46% (6/13)   Writing objects:  53% (7/13)   Writing objects:  61% (8/13)   Writing objects:  69% (9/13)   Writing objects:  76% (10/13)   Writing objects:  84% (11/13)   Writing objects:  92% (12/13)   Writing objects: 100% (13/13)   Writing objects: 100% (13/13), 1.87 KiB | 383.00 KiB/s, done.
+Total 13 (delta 8), reused 0 (delta 0)
+remote: Resolving deltas:   0% (0/8)[Kremote: Resolving deltas:  12% (1/8)[Kremote: Resolving deltas:  25% (2/8)[Kremote: Resolving deltas:  37% (3/8)[Kremote: Resolving deltas:  50% (4/8)[Kremote: Resolving deltas:  62% (5/8)[Kremote: Resolving deltas:  75% (6/8)[Kremote: Resolving deltas:  87% (7/8)[Kremote: Resolving deltas: 100% (8/8)[Kremote: Resolving deltas: 100% (8/8), completed with 8 local objects.[K
+To https://github.com/quangnguyen1998/Website_qnn97.git
+   a73bfd3..26bcca2  master -> master
+]0;/stor/home/qnn97/Project3/Website_qnn97]0;qnn97@educcomp01: ~/Project3/Website_qnn97[01;32mqnn97@educcomp01[00m:[01;34m~/Project3/Website_qnn97[00m$ git add.[K .

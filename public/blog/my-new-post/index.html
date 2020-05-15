@@ -85,7 +85,8 @@ starch_calories={&#39;brownrice&#39;:216, &#39;whiterice&#39;:206, &#39;potato&#
 }
 starch_calories</code></pre>
 <pre><code>## {&#39;whiterice&#39;: 206, &#39;brownrice&#39;: 216, &#39;whitebread&#39;: 109, &#39;potato&#39;: 163, &#39;corn&#39;: 177, &#39;oatmeal&#39;: 158}</code></pre>
-<pre class="python"><code>x=2</code></pre>
+<pre class="python"><code>import numpy as np
+array1=np.array([[1,2],[3,4]])</code></pre>
 <pre class="r"><code>#R code chunk
 library(reticulate)
 py$starch_calories[&#39;brownrice&#39;]</code></pre>
@@ -95,8 +96,10 @@ py$starch_calories[&#39;brownrice&#39;]</code></pre>
 total&lt;-calo$brownrice + calo$whiterice + calo$potato + calo$corn + calo$oatmeal + calo$whitebread
 total</code></pre>
 <pre><code>## [1] 1029</code></pre>
-<pre class="r"><code>py$x</code></pre>
-<pre><code>## [1] 2</code></pre>
+<pre class="r"><code>py$array1 + 3</code></pre>
+<pre><code>##      [,1] [,2]
+## [1,]    4    5
+## [2,]    6    7</code></pre>
 
               <hr>
               <div class="related-posts">
