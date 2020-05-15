@@ -1,0 +1,17 @@
+---
+title: "Project"
+author: "Quang Nguyen"
+date: "2020-05-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Projects
+The projects were focused on analyze the relationships of the variebles within the dataset about melanoma using different methods.
+
+- [Exploratory Data Analysis with Tidyverse Tools](/project1/)
+
+- [Modeling, Testing, and Classification](/PROJECT2/)

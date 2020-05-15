@@ -5,13 +5,15 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "2518630318",
+    "hash" : "0",
     "id" : "27E011B0",
-    "lastKnownWriteTime" : 1589533144,
-    "last_content_update" : 1589533144,
+    "lastKnownWriteTime" : 1589576950,
+    "last_content_update" : 1589576950316,
     "path" : "~/Project3/Website_qnn97/config.toml",
     "project_path" : "config.toml",
     "properties" : {
+        "cursorPosition" : "39,17",
+        "scrollLine" : "32"
     },
     "relative_order" : 3,
     "source_on_save" : false,
